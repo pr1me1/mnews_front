@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>Second</title>
+  <link rel="stylesheet" href="./styles/style.css" />
+</head>
+<body>
+  <div class="page">
+    <h2>Welcome</h2>
+    <p id="who"></p>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script>
+    // Himoyalangan sahifa guard’i.
+// Talab: accessToken mavjud va muddati o‘tmagan bo‘lishi kerak.
+
+(function () {
+  const access = localStorage.getItem("accessToken");
+  const accessExp = Number(localStorage.getItem("accessTokenExpiresAt") || 0);
+
+  // Token yo‘q yoki muddati tugagan bo‘lsa — login (index.html)ga qaytaramiz
+  if (!access || !accessExp || Date.now() > accessExp) {
+    // Kerak bo‘lsa, tozalab qo‘yamiz
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("accessTokenExpiresAt");
+    // refreshni ham tekshirasiz — hozircha refresh endpoint yo‘q, shuning uchun login’ga qaytaramiz:
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Shu yerda siz protected kontentni yuklaysiz:
+  // masalan, user profilini olish, yoki sahifani ko‘rsatish.
+  // console.log("User kirishga ruxsat etildi, access token bor.");
+
+  // Ixtiyoriy: oddiy "chiqish" funksiyasi
+  window.appLogout = function () {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("accessTokenExpiresAt");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("refreshTokenExpiresAt");
+    window.location.href = "index.html";
+  };
+})();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.form-cont {
+    padding: 30px 50px;
+    background-color: red;
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-space {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+
+/* Loader overlay */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.loader {
+  width: 56px;
+  height: 56px;
+  border: 6px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg);} }
+
+/* Xabarlar */
+.text-danger { color: #d9534f; }
+.mt-2 { margin-top: .5rem; }
