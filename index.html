@@ -3,29 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="./styles/style.css">
+    <title>Sayt</title>
+    <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
-    <div class="form-cont">
-        <h2>Register</h2>
-        <div class="form" id="registerForm">
-            <div class="input-space">
-                <label for="inputEmail" class="label" id="emailLabel">Email</label>
-                <input type="text" class="form-control" id="inputEmail" required autocomplete="email">
+    <header>
+        <div class="container">
+            <div class="logo">
+                LOGO
             </div>
 
-            <div class="input-space">
-                <label for="inputPassword" class="label" id="passwordLabel">Password</label>
-                <input type="password" class="form-control" id="inputPassword" required minlength="8" autocomplete="new-password">
-            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#">Asosiy</a></li>
+                    <li class="category">
+                        <a href="#">Kategoriyalar</a>
+                        <div class="categories">
+                            Salom kategoriya
+                        </div>
+                    </li>
+                    <li><a href="#">Asosiy</a></li>
+                    <li><a href="#">Asosiy</a></li>
+                </ul>
+            </nav>
 
-            <button type="submit" class="submit-btn" id="submitBtn">Register</button>
+            <div class="actions">
+                <button id="regBtn">Auth</button>
+            </div>
         </div>
-    </div>
+    </header>
     
 
 
-    <script src="./scripts/script.js"></script>
+    <script src="./scripts/main.js"></script>
 </body>
 </html>
