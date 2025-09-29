@@ -90,8 +90,8 @@
         <div style="display:flex;align-items:center;gap:16px;">
             <div class="logo">NEWS PORTAL</div>
             <nav>
-                <a href="home.html">Home</a>
-                <a href="home.html">Categories</a>
+                <a href="main.html">Home</a>
+                <a href="main.html">Categories</a>
             </nav>
         </div>
         <div id="headerActions">
@@ -102,7 +102,7 @@
 
 <main>
     <div class="container">
-        <a href="home.html" class="back-link">← Back to Home</a>
+        <a href="main.html" class="back-link">← Back to Home</a>
 
         <div id="articleContainer">
             <div class="loading">Loading article...</div>
@@ -149,7 +149,7 @@
         let isAuthenticated = false;
 
         // API endpoints
-        const BASE = "http://144.91.124.3:4444";
+        const BASE = "https://mnews.jprq.site";
         const ARTICLE_URL = (slugOrId) => `${BASE}/api/v1/articles/${encodeURIComponent(slugOrId)}/`;
         const PROFILE_URL = `${BASE}/api/v1/users/my-profile/`;
         const LOGOUT_URL = `${BASE}/api/v1/auth/logout/`;

@@ -352,9 +352,9 @@
     <div class="header">
         <h1>My Dashboard</h1>
         <div class="header-actions">
-            <a href="create-article.html" class="btn btn-primary">Create Article</a>
-            <a href="profile.html" class="btn btn-secondary">My Profile</a>
-            <a href="home.html" class="btn btn-secondary">Home</a>
+            <a href="create_article.html" class="btn btn-primary">Create Article</a>
+            <a href="my_profile.html" class="btn btn-secondary">My Profile</a>
+            <a href="main.html" class="btn btn-secondary">Home</a>
         </div>
     </div>
 
@@ -390,9 +390,9 @@
     let articles = [];
 
     // API URLs
-    const ARTICLES_URL = "http://144.91.124.3:4444/api/v1/my-profile/articles/";
-    const PUBLISH_URL = (id) => `http://144.91.124.3:4444/api/v1/my-profile/articles/${id}/publish/`;
-    const SCHEDULE_URL = (id) => `http://144.91.124.3:4444/api/v1/my-profile/articles/${id}/schedule/`;
+    const ARTICLES_URL = "https://mnews.jprq.site/api/v1/my-profile/articles/";
+    const PUBLISH_URL = (id) => `https://mnews.jprq.site/api/v1/my-profile/articles/${id}/publish/`;
+    const SCHEDULE_URL = (id) => `https://mnews.jprq.site/api/v1/my-profile/articles/${id}/schedule/`;
 
     // Token management
     function getStoredTokens() {
