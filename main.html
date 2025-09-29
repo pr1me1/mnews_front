@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>News Portal — Latest</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        * { box-sizing: border-box; margin:0; padding:0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f5f7fa; color:#28303b; }
+        .container { max-width:1100px; margin:0 auto; padding:20px; }
+        header { background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.06); position:sticky; top:0; z-index:1000; }
+        header .container { display:flex; gap:20px; align-items:center; justify-content:space-between; padding:14px 20px; flex-wrap:wrap; }
+        .logo { font-weight:700; letter-spacing:0.4px; color:#2b3a4a; font-size:20px; }
+        nav { display:flex; gap:12px; align-items:center; }
+        .nav-menu { display:flex; gap:8px; list-style:none; align-items:center; }
+        .nav-menu a { text-decoration:none; color:#2b3a4a; padding:8px 10px; border-radius:6px; font-weight:600; font-size:14px; }
+        .nav-menu a:hover { background:#eef6ff; color:#1e73d1; }
+
+        .category { position:relative; }
+        .categories { display:none; position:absolute; left:0; top:calc(100% + 8px); background:#fff; box-shadow:0 6px 18px rgba(15,30,50,0.08); border-radius:10px; padding:12px; min-width:260px; z-index:1002; }
+        .category:hover .categories { display:block; }
+        .categories-list { list-style:none; margin:0; padding:0; max-height:420px; overflow:auto; }
+        .categories-list li { padding:4px 6px; }
+        .categories-list a { display:block; padding:8px 10px; text-decoration:none; color:#35414a; border-radius:6px; }
+        .categories-list a:hover { background:#f5fbff; color:#1273d1; }
+
+        .actions { display:flex; gap:10px; align-items:center; }
+        .auth-btn { background:#1273d1; color:#fff; padding:8px 14px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; }
+        .auth-btn.secondary { background:#f1f5f8; color:#2b3a4a; border:1px solid #e6eef6; }
+        .profile-dropdown { position:relative; }
+        .profile-menu { display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; box-shadow:0 6px 18px rgba(15,30,50,0.08); border-radius:10px; padding:8px; min-width:180px; z-index:1002; }
+        .profile-dropdown:hover .profile-menu { display:block; }
+        .profile-menu a { display:block; padding:8px 12px; text-decoration:none; color:#35414a; border-radius:6px; }
+        .profile-menu a:hover { background:#f5fbff; color:#1273d1; }
+
+        main { padding:20px 0 60px; min-height:60vh; }
+        .section { background:#fff; border-radius:10px; padding:18px; box-shadow:0 2px 8px rgba(10,20,30,0.04); margin-bottom:18px; }
+
+        /* Latest articles */
+        .articles-header { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+        .articles-header h2 { font-size:20px; color:#1f2a36; }
+        .articles-controls { display:flex; gap:8px; align-items:center; }
+        .small-btn { background:#f1f5f9; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; color:#2b3a4a; }
+        .small-btn.primary { background:#1273d1; color:#fff; }
+        .article-list { display:grid; grid-template-columns: 1fr; gap:12px; }
+        .article-card { display:flex; gap:14px; padding:14px; border-radius:10px; align-items:flex-start; border:1px solid #eef3f7; }
+        .article-meta { font-size:13px; color:#6b7785; margin-bottom:6px; }
+        .article-title { font-size:18px; margin-bottom:6px; color:#142533; font-weight:700; }
+        .article-summary { color:#47525a; font-size:14px; }
+
+        .load-more-area { margin-top:12px; text-align:center; }
+
+        /* Authors at bottom */
+        .authors-section { margin-top:26px; padding:18px; }
+        .authors-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:12px; }
+        .author-card { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:10px; border:1px solid #eef3f7; background:#fff; }
+        .author-avatar { width:56px; height:56px; border-radius:50%; background:#1273d1; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+        .author-info h4 { margin-bottom:6px; font-size:15px; }
+        .author-info p { font-size:13px; color:#54646f; margin-bottom:6px; }
+
+        .loading { text-align:center; color:#6b7785; padding:12px; }
+        .muted { color:#6b7785; font-size:13px; }
+
+        @media (min-width: 720px) {
+            .article-list { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div class="logo">NEWS PORTAL</div>
+
+            <nav>
+                <ul class="nav-menu" style="align-items:center;">
+                    <li><a href="#latest" id="linkLatest">Latest</a></li>
+
+                    <li class="category">
+                        <a href="#categories">Categories ▾</a>
+                        <div class="categories">
+                            <ul class="categories-list" id="categoriesList">
+                                <li class="loading">Loading categories...</li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li class="category">
+                        <a href="#authors">Authors ▾</a>
+                        <div class="categories" style="min-width:320px; max-width:420px;">
+                            <ul class="categories-list" id="authorsDropdownList">
+                                <li class="loading">Loading authors...</li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="actions" id="headerActions">
+            <!-- Dynamic content will be inserted here -->
+            <div class="loading" style="font-size:14px;">Loading...</div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+
+        <!-- Latest News section (top) -->
+        <section class="section" id="latestSection">
+            <div class="articles-header">
+                <h2 id="latestTitle">Latest News</h2>
+                <div class="articles-controls">
+                    <button id="backToLatestBtn" class="small-btn" style="display:none;">← Back to Latest</button>
+                    <button id="refreshLatestBtn" class="small-btn">Refresh</button>
+                </div>
+            </div>
+
+            <div id="articlesArea" class="article-list">
+                <div class="loading">Loading latest articles...</div>
+            </div>
+
+            <div class="load-more-area" id="articlesPaginationArea"></div>
+        </section>
+
+        <!-- Authors always at the bottom -->
+        <section class="section authors-section" id="authorsSection">
+            <h3>Top Authors</h3>
+            <p class="muted">Discover authors and their recent published articles.</p>
+            <div id="authorsArea" class="authors-grid">
+                <div class="loading">Loading authors...</div>
+            </div>
+            <div id="authorsLoadMore" style="margin-top:12px; text-align:center;"></div>
+        </section>
+    </div>
+</main>
+
+<script>
+    (function () {
+        // --- Elements
+        const categoriesList = document.getElementById("categoriesList");
+        const authorsDropdownList = document.getElementById("authorsDropdownList");
+        const authorsArea = document.getElementById("authorsArea");
+        const authorsLoadMore = document.getElementById("authorsLoadMore");
+        const headerActions = document.getElementById("headerActions");
+
+        const articlesArea = document.getElementById("articlesArea");
+        const articlesPaginationArea = document.getElementById("articlesPaginationArea");
+        const latestTitle = document.getElementById("latestTitle");
+        const backToLatestBtn = document.getElementById("backToLatestBtn");
+        const refreshLatestBtn = document.getElementById("refreshLatestBtn");
+        const linkLatest = document.getElementById("linkLatest");
+
+        // --- API endpoints
+        const BASE = "http://144.91.124.3:4444";
+        const CATEGORIES_URL = `${BASE}/api/v1/taxonomy/categories/`;
+        const AUTHORS_URL = `${BASE}/api/v1/authors/`;
+        const LATEST_URL = `${BASE}/api/v1/articles/latest/`;
+        const PROFILE_URL = `${BASE}/api/v1/users/my-profile/`;
+        const ARTICLES_BY_CATEGORY = (slug) => `${BASE}/api/v1/articles/by-category/${encodeURIComponent(slug)}/`;
+        const AUTHOR_PAGE = (id) => `author.html?id=${encodeURIComponent(id)}`;
+
+        // --- Utility fetch that handles JSON + paginated format
+        async function fetchJson(url, options = {}) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) {
+                    console.warn("fetchJson non-ok", url, res.status);
+                    return { results: [], next: null, error: res.status };
+                }
+                const data = await res.json();
+                if (Array.isArray(data)) return { results: data, next: null };
+                if (data && Array.isArray(data.results)) return { results: data.results, next: data.next || null };
+                // single object fallback
+                return { results: Array.isArray(data) ? data : [data], next: null, data };
+            } catch (err) {
+                console.error("fetchJson error:", err);
+                return { results: [], next: null, error: err };
+            }
+        }
+
+        // --- Authentication functions
+        function getStoredTokens() {
+            const accessToken = localStorage.getItem("accessToken");
+            const accessExp = localStorage.getItem("accessTokenExpiresAt");
+            return {
+                access: accessToken,
+                accessExp: accessExp ? parseInt(accessExp) : 0
+            };
+        }
+
+        function isTokenValid(expTime) {
+            return expTime && Date.now() < expTime;
+        }
+
+        async function checkAuthStatus() {
+            const tokens = getStoredTokens();
+            if (!tokens.access || !isTokenValid(tokens.accessExp)) {
+                return { isAuthenticated: false, user: null };
+            }
+            try {
+                const response = await fetch(PROFILE_URL, {
+                    headers: { "Authorization": "Bearer " + tokens.access }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    return { isAuthenticated: true, user };
+                }
+            } catch (err) {
+                console.error("Auth check error:", err);
+            }
+            return { isAuthenticated: false, user: null };
+        }
+
+        async function logout() {
+            // Remove tokens and reload
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("accessTokenExpiresAt");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("refreshTokenExpiresAt");
+            window.location.reload();
+        }
+
+        function renderAuthenticatedHeader(user) {
+            const displayName = user.display_name || user.username || user.email || "User";
+            headerActions.innerHTML = `
+                <div class="profile-dropdown">
+                    <a href="#" class="auth-btn">${displayName} ▾</a>
+                    <div class="profile-menu">
+                        <a href="my_profile.html">My Profile</a>
+                        <a href="#" id="logoutBtn">Logout</a>
+                    </div>
+                </div>
+            `;
+            document.getElementById("logoutBtn").addEventListener("click", (e) => {
+                e.preventDefault();
+                logout();
+            });
+        }
+
+        function renderUnauthenticatedHeader() {
+            headerActions.innerHTML = `
+                <a href="login.html" class="auth-btn">Login</a>
+                <a href="register.html" class="auth-btn secondary">Register</a>
+            `;
+        }
+
+        async function initializeAuth() {
+            const { isAuthenticated, user } = await checkAuthStatus();
+
+            if (isAuthenticated && user) {
+                renderAuthenticatedHeader(user);
+            } else {
+                renderUnauthenticatedHeader();
+            }
+        }
+
+        // --- Render categories (tree)
+        function renderCategoryNode(node) {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = `#category/${node.slug}`;
+            a.textContent = node.name;
+            a.addEventListener("click", (e) => {
+                e.preventDefault();
+                onCategorySelected(node.slug, node.name);
+            });
+            li.appendChild(a);
+
+            if (node.children && node.children.length) {
+                const ul = document.createElement("ul");
+                ul.className = "category-children";
+                node.children.forEach(child => {
+                    ul.appendChild(renderCategoryNode(child));
+                });
+                li.appendChild(ul);
+            }
+            return li;
+        }
+
+        async function loadCategories() {
+            categoriesList.innerHTML = '<li class="loading">Loading categories...</li>';
+            const { results } = await fetchJson(CATEGORIES_URL);
+            categoriesList.innerHTML = "";
+            if (!results || results.length === 0) {
+                categoriesList.innerHTML = '<li class="muted">No categories available</li>';
+                return;
+            }
+            results.forEach(item => {
+                if (item.children && Array.isArray(item.children)) {
+                    categoriesList.appendChild(renderCategoryNode(item));
+                } else {
+                    const li = document.createElement("li");
+                    const a = document.createElement("a");
+                    a.href = `#category/${item.slug}`;
+                    a.textContent = item.name;
+                    a.addEventListener("click", (e) => { e.preventDefault(); onCategorySelected(item.slug, item.name); });
+                    li.appendChild(a);
+                    categoriesList.appendChild(li);
+                }
+            });
+        }
+
+        // --- Authors rendering and pagination
+        function createAuthorCard(author) {
+            const card = document.createElement("div");
+            card.className = "author-card";
+            const avatar = document.createElement("div");
+            avatar.className = "author-avatar";
+            const nameVal = (author.user && (author.user.display_name || author.user.username)) || "Author";
+            avatar.textContent = nameVal.charAt(0).toUpperCase();
+
+            const info = document.createElement("div");
+            info.className = "author-info";
+            const h4 = document.createElement("h4");
+            h4.textContent = nameVal;
+            const p = document.createElement("p");
+            p.textContent = (author.bio && author.bio.length > 120) ? author.bio.slice(0, 117) + "..." : (author.bio || "");
+            const link = document.createElement("a");
+            link.href = `author_page.html?id=${encodeURIComponent(author.id)}`;
+            link.textContent = "View profile";
+            link.style.color = "#1273d1";
+            link.style.fontWeight = "600";
+            info.appendChild(h4);
+            if (p.textContent) info.appendChild(p);
+            info.appendChild(link);
+
+            card.appendChild(avatar);
+            card.appendChild(info);
+            return card;
+        }
+
+        async function loadAuthors(url = AUTHORS_URL, append = false) {
+            if (!append) {
+                authorsArea.innerHTML = '<div class="loading">Loading authors...</div>';
+                authorsDropdownList.innerHTML = '<li class="loading">Loading authors...</li>';
+                authorsLoadMore.innerHTML = '';
+            } else {
+                authorsLoadMore.innerHTML = '<div class="loading">Loading more authors...</div>';
+            }
+
+            const { results, next } = await fetchJson(url);
+
+            // dropdown: top few authors
+            authorsDropdownList.innerHTML = "";
+            if (!results || results.length === 0) {
+                authorsDropdownList.innerHTML = '<li class="muted">No authors found</li>';
+            } else {
+                results.slice(0, 6).forEach(a => {
+                    const li = document.createElement("li");
+                    const link = document.createElement("a");
+                    link.href = `author_page.html?id=${encodeURIComponent(a.id)}`;
+                    link.textContent = (a.user && (a.user.display_name || a.user.username)) || "Author";
+                    li.appendChild(link);
+                    authorsDropdownList.appendChild(li);
+                });
+            }
+
+            if (!append) authorsArea.innerHTML = "";
+            results.forEach(a => {
+                authorsArea.appendChild(createAuthorCard(a));
+            });
+
+            if (next) {
+                authorsLoadMore.innerHTML = `<button id="loadMoreAuthorsBtn" class="small-btn">Load more authors</button>`;
+                document.getElementById("loadMoreAuthorsBtn").addEventListener("click", () => loadAuthors(next, true));
+            } else {
+                authorsLoadMore.innerHTML = "";
+            }
+        }
+
+        // --- Articles rendering & pagination
+        function createArticleCard(article) {
+            const div = document.createElement("div");
+            div.className = "article-card";
+
+            const left = document.createElement("div");
+            left.style.flex = "1";
+
+            const meta = document.createElement("div");
+            meta.className = "article-meta";
+            const published = article.published_at ? (new Date(article.published_at)).toLocaleString() : "";
+            const authorName = (article.author && (article.author.display_name || article.author.username)) || "";
+            meta.textContent = `${authorName}${authorName ? " • " : ""}${published}`;
+
+            const title = document.createElement("div");
+            title.className = "article-title";
+            const titleLink = document.createElement("a");
+            titleLink.href = `article.html?slug=${encodeURIComponent(article.slug || article.id)}`;
+            titleLink.textContent = article.title || "Untitled";
+            titleLink.style.textDecoration = "none";
+            titleLink.style.color = "#142533";
+            title.appendChild(titleLink);
+
+            const summary = document.createElement("div");
+            summary.className = "article-summary";
+            summary.textContent = article.summary || (article.blocks && article.blocks.length ? (article.blocks[0].text || "") : "");
+
+            left.appendChild(meta);
+            left.appendChild(title);
+            left.appendChild(summary);
+
+            div.appendChild(left);
+
+            // Make the whole card clickable
+            div.style.cursor = "pointer";
+            div.addEventListener("click", (e) => {
+                // Prevent double navigation if clicking the link itself
+                if (e.target.tagName.toLowerCase() === "a") return;
+                window.location.href = `article.html?slug=${encodeURIComponent(article.slug || article.id)}`;
+            });
+            // Also allow clicking the title link
+            titleLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.location.href = `article.html?slug=${encodeURIComponent(article.slug || article.id)}`;
+            });
+
+            return div;
+        }
+
+        // Renders list of articles and manages pagination controls
+        async function renderArticlesFromUrl(url, pushState = true) {
+            articlesArea.innerHTML = '<div class="loading">Loading articles...</div>';
+            articlesPaginationArea.innerHTML = "";
+            try {
+                const { results, next, error } = await fetchJson(url);
+                if (error) {
+                    articlesArea.innerHTML = `<div class="muted">Error loading articles (status: ${error}).</div>`;
+                    return;
+                }
+                articlesArea.innerHTML = "";
+                if (!results || results.length === 0) {
+                    articlesArea.innerHTML = '<div class="muted">No articles found.</div>';
+                    return;
+                }
+                results.forEach(a => {
+                    articlesArea.appendChild(createArticleCard(a));
+                });
+
+                // pagination buttons
+                const controls = document.createElement("div");
+                controls.style.display = "flex";
+                controls.style.justifyContent = "center";
+                controls.style.gap = "8px";
+                if (next) {
+                    const nextBtn = document.createElement("button");
+                    nextBtn.className = "small-btn";
+                    nextBtn.textContent = "Load more";
+                    nextBtn.addEventListener("click", () => renderArticlesFromUrl(next, false));
+                    controls.appendChild(nextBtn);
+                }
+                articlesPaginationArea.appendChild(controls);
+
+                if (pushState && window.history && window.history.pushState) {
+                    window.history.pushState({ url }, "", "");
+                }
+            } catch (err) {
+                console.error("renderArticlesFromUrl error", err);
+                articlesArea.innerHTML = '<div class="muted">Error loading articles.</div>';
+            }
+        }
+
+        // Load latest articles
+        async function loadLatestArticles() {
+            latestTitle.textContent = "Latest News";
+            backToLatestBtn.style.display = "none";
+            await renderArticlesFromUrl(LATEST_URL);
+        }
+
+        // When category clicked
+        async function onCategorySelected(slug, displayName) {
+            latestTitle.textContent = `Category: ${displayName}`;
+            backToLatestBtn.style.display = "inline-block";
+            const url = ARTICLES_BY_CATEGORY(slug);
+            await renderArticlesFromUrl(url);
+        }
+
+        // Back to Latest handler
+        backToLatestBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            loadLatestArticles();
+        });
+        refreshLatestBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const isCategory = backToLatestBtn.style.display !== "none";
+            if (isCategory) {
+                // if currently viewing category, reload current page via history state if possible, else reload latest
+                loadLatestArticles();
+            } else {
+                loadLatestArticles();
+            }
+        });
+        linkLatest.addEventListener("click", (e) => { e.preventDefault(); loadLatestArticles(); });
+
+        // --- Initialization
+        async function initializePage() {
+            // Initialize authentication first
+            await initializeAuth();
+
+            // Then load other content
+            await Promise.all([loadCategories(), loadAuthors(), loadLatestArticles()]);
+        }
+
+        // Kick off
+        initializePage();
+    })();
+</script>
+</body>
+</html>

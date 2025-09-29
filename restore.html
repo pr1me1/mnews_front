@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Restore Request</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-group .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .or-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .or-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .or-divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .note {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 0 12px 12px 0;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0056b3;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link a:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .input-group .form-group {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔄 Restore Account</h1>
+        <p>Enter your credentials to request an account restoration link</p>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; color: #667eea;">Sending restore request...</p>
+    </div>
+
+    <form id="restoreForm">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username">
+        </div>
+
+        <div class="or-divider">
+            <span>OR</span>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email address">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            Send Restore Link
+        </button>
+    </form>
+
+    <div class="note">
+        <strong>Note:</strong> You need to provide either your username or email address along with your password. The restore link will be sent to your registered email address.
+    </div>
+
+    <div class="back-link">
+        <a href="#" onclick="history.back()">← Back to Login</a>
+    </div>
+</div>
+
+<script>
+    // Configuration - Update this URL to match your API endpoint
+    const API_ENDPOINT = 'http://144.91.124.3:4444/api/v1/users/restore/request/'; // Update this path
+
+    document.getElementById('restoreForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        // Clear previous alerts
+        clearAlerts();
+
+        // Validation
+        if (!password) {
+            showAlert('Please enter your password.', 'error');
+            return;
+        }
+
+        if (!username && !email) {
+            showAlert('Please provide either your username or email address.', 'error');
+            return;
+        }
+
+        // Show loading state
+        showLoading(true);
+
+        // Prepare request data
+        const requestData = {
+            password: password
+        };
+
+        if (username) {
+            requestData.username = username;
+        }
+        if (email) {
+            requestData.email = email;
+        }
+
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken() // For Django CSRF protection
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            let data;
+
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    console.error('JSON parsing failed:', jsonError);
+                    const textContent = await response.text();
+                    console.error('Response content:', textContent);
+                    showAlert('Server returned invalid response. Please try again.', 'error');
+                    return;
+                }
+            } else {
+                // Non-JSON response (likely HTML error page)
+                const textContent = await response.text();
+                console.error('Non-JSON response:', textContent);
+
+                if (response.status === 404) {
+                    showAlert('API endpoint not found. Please check the URL configuration.', 'error');
+                } else if (response.status === 403) {
+                    showAlert('Access forbidden. Please check your permissions.', 'error');
+                } else if (response.status === 500) {
+                    showAlert('Server error. Please try again later.', 'error');
+                } else {
+                    showAlert(`Server error (${response.status}). Please check the console for details.`, 'error');
+                }
+                return;
+            }
+
+            if (response.ok) {
+                // Success response
+                showAlert(data.detail || 'Restore link sent successfully!', 'success');
+                document.getElementById('restoreForm').reset();
+
+                // Redirect to login.html after 2 seconds
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+            } else {
+                // Error response with JSON data
+                showAlert(data.detail || 'An error occurred. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Request failed:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                showAlert('Cannot connect to server. Please check the API URL and try again.', 'error');
+            } else {
+                showAlert('Network error. Please check your connection and try again.', 'error');
+            }
+        } finally {
+            showLoading(false);
+        }
+    });
+
+    function showLoading(show) {
+        const loading = document.getElementById('loading');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (show) {
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+        } else {
+            loading.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Restore Link';
+        }
+    }
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.textContent = message;
+        alertDiv.style.display = 'block';
+
+        alertContainer.appendChild(alertDiv);
+
+        // Auto-hide success messages after 10 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 10000);
+        }
+    }
+
+    function clearAlerts() {
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = '';
+    }
+
+    function getCsrfToken() {
+        // Get CSRF token from Django
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                return value;
+            }
+        }
+        return '';
+    }
+
+    // Clear username when email is entered and vice versa (optional UX enhancement)
+    document.getElementById('username').addEventListener('input', function() {
+        if (this.value) {
+            document.getElementById('email').value = '';
+        }
+    });
+
+    document.getElementById('email').addEventListener('input', function() {
+        if (this.value) {
+            document.getElementById('username').value = '';
+        }
+    });
+</script>
+</body>
+</html>
