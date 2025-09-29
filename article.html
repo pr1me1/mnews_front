@@ -18,27 +18,37 @@
         main { padding:20px 0 60px; min-height:60vh; }
         .article-container { background:#fff; border-radius:12px; padding:32px; box-shadow:0 4px 12px rgba(10,20,30,0.06); margin-bottom:24px; }
         .article-meta { color:#6b7785; font-size:14px; margin-bottom:16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
-        .article-title { font-size:32px; font-weight:800; color:#1f2a36; margin-bottom:16px; line-height:1.2; }
-        .article-summary { font-size:18px; color:#47525a; margin-bottom:24px; font-weight:400; }
-        .article-actions { display:flex; gap:12px; align-items:center; margin-bottom:32px; padding:16px 0; border-top:1px solid #eef3f7; border-bottom:1px solid #eef3f7; }
-        .action-btn { background:#f8fafc; border:1px solid #e2e8f0; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; }
-        .action-btn:hover { background:#eef6ff; border-color:#1273d1; color:#1273d1; }
+        .article-title { font-size:36px; font-weight:800; color:#1f2a36; margin-bottom:32px; line-height:1.2; }
+        .article-actions { display:flex; gap:12px; align-items:center; margin:32px 0; padding:20px 0; border-top:1px solid #eef3f7; border-bottom:1px solid #eef3f7; }
+        .action-btn { background:#f8fafc; border:1px solid #e2e8f0; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; font-size:14px; transition: all 0.2s; }
+        .action-btn:hover { background:#eef6ff; border-color:#1273d1; color:#1273d1; transform: translateY(-1px); }
         .action-btn.active { background:#1273d1; color:#fff; border-color:#1273d1; }
-        .reaction-count { background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:12px; }
-        .article-content { font-size:16px; color:#2d3748; }
-        .article-block { margin-bottom:20px; }
-        .article-block h1, .article-block h2, .article-block h3, .article-block h4, .article-block h5, .article-block h6 { color:#1a202c; margin:24px 0 12px; line-height:1.3; }
-        .article-block h1 { font-size:28px; }
-        .article-block h2 { font-size:24px; }
-        .article-block h3 { font-size:20px; }
-        .article-block h4 { font-size:18px; }
-        .article-block p { margin-bottom:16px; line-height:1.7; }
-        .article-block img { max-width:100%; height:auto; border-radius:8px; margin:16px 0; display:block; }
-        .article-block figure { margin:24px 0; }
-        .article-block figcaption { text-align:center; color:#6b7785; font-size:14px; margin-top:8px; font-style:italic; }
-        .article-block video { max-width:100%; border-radius:8px; display:block; }
-        .article-block blockquote { border-left:4px solid #1273d1; padding-left:20px; margin:24px 0; font-style:italic; color:#4a5568; font-size:18px; }
-        .article-block hr { border:none; border-top:2px solid #e2e8f0; margin:32px 0; }
+        .reaction-count { background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:12px; font-weight:600; }
+        .article-content { font-size:17px; color:#2d3748; line-height:1.8; }
+        .article-block { margin-bottom:28px; }
+        .article-block h1, .article-block h2, .article-block h3, .article-block h4, .article-block h5, .article-block h6 { color:#1a202c; margin:32px 0 16px; line-height:1.3; font-weight:700; }
+        .article-block h1 { font-size:32px; }
+        .article-block h2 { font-size:28px; }
+        .article-block h3 { font-size:24px; }
+        .article-block h4 { font-size:20px; }
+        .article-block h5 { font-size:18px; }
+        .article-block h6 { font-size:16px; }
+        .article-block p { margin-bottom:20px; line-height:1.8; }
+        .article-block img { max-width:100%; height:auto; border-radius:10px; margin:24px 0; display:block; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+        .article-block figure { margin:32px 0; }
+        .article-block figcaption { text-align:center; color:#6b7785; font-size:14px; margin-top:12px; font-style:italic; }
+        .article-block video { max-width:100%; border-radius:10px; display:block; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+        .article-block blockquote { border-left:4px; solid:#1273d1; padding:20px 24px; margin:28px 0; background:#f8fafc; border-radius:0 8px 8px 0; font-style:italic; color:#4a5568; font-size:18px; }
+        .article-block ul, .article-block ol { margin:20px 0 20px 24px; }
+        .article-block li { margin-bottom:10px; line-height:1.7; }
+        .article-block hr { border:none; border-top:2px solid #e2e8f0; margin:40px 0; }
+        .article-block code { background:#f1f5f9; padding:2px 6px; border-radius:4px; font-family:'Courier New', monospace; font-size:0.9em; color:#e53e3e; }
+        .article-block pre { background:#1e293b; color:#e2e8f0; padding:20px; border-radius:8px; overflow-x:auto; margin:20px 0; }
+        .article-block pre code { background:none; color:inherit; padding:0; }
+        .article-block a { color:#1273d1; text-decoration:none; border-bottom:1px solid transparent; transition:border-color 0.2s; }
+        .article-block a:hover { border-bottom-color:#1273d1; }
+        .pullquote { text-align:center; font-size:26px; font-weight:700; color:#1273d1; margin:40px 0; padding:32px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius:12px; border-left:6px solid #1273d1; }
+        .embed-container { margin:32px 0; padding:20px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; }
         .comments-section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 4px 12px rgba(10,20,30,0.06); }
         .comments-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
         .comments-title { font-size:20px; font-weight:700; color:#1f2a36; }
@@ -46,20 +56,20 @@
         .comment-textarea { width:100%; min-height:100px; padding:12px; border:1px solid #e2e8f0; border-radius:8px; font-family:inherit; font-size:14px; resize:vertical; }
         .comment-textarea:focus { outline:none; border-color:#1273d1; box-shadow:0 0 0 3px rgba(18,115,209,0.1); }
         .comment-actions { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
-        .btn { padding:8px 16px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; border:none; }
+        .btn { padding:8px 16px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; border:none; transition:all 0.2s; }
         .btn-primary { background:#1273d1; color:#fff; }
         .btn-secondary { background:#f8fafc; color:#4a5568; border:1px solid #e2e8f0; }
-        .btn:hover { opacity:0.9; }
-        .btn:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn:hover { opacity:0.9; transform:translateY(-1px); }
+        .btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
         .auth-prompt { text-align:center; padding:20px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; }
         .auth-prompt a { color:#1273d1; text-decoration:none; font-weight:600; }
-        .comment { border:1px solid #eef3f7; border-radius:8px; padding:16px; margin-bottom:12px; }
+        .comment { border:1px solid #eef3f7; border-radius:8px; padding:16px; margin-bottom:12px; background:#fafbfc; }
         .comment-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
         .comment-author { font-weight:600; color:#1f2a36; }
         .comment-date { color:#6b7785; font-size:13px; }
         .comment-body { color:#4a5568; margin-bottom:12px; }
         .comment-reactions { display:flex; gap:8px; align-items:center; }
-        .reaction-btn { background:none; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:4px; }
+        .reaction-btn { background:none; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:4px; transition:all 0.2s; }
         .reaction-btn:hover { background:#f7fafc; }
         .reaction-btn.active { background:#dbeafe; color:#1e40af; }
         .reply-form { margin-top:12px; }
@@ -74,13 +84,12 @@
         .dropdown-menu.show { display: block; }
         .dropdown-menu a, .dropdown-menu button { display: block; width: 100%; text-align: left; padding: 8px 12px; text-decoration: none; color: #2b3a4a; background: none; border: none; cursor: pointer; border-radius: 4px; font-size: 14px; }
         .dropdown-menu a:hover, .dropdown-menu button:hover { background: #f8fafc; }
-        .pullquote { text-align:center; font-size:24px; font-weight:600; color:#1273d1; margin:32px 0; padding:20px; background:#f7fafc; border-radius:8px; }
         @media (max-width: 768px) {
             .container { padding:12px; }
             .article-container, .comments-section { padding:20px; }
-            .article-title { font-size:24px; }
-            .article-summary { font-size:16px; }
+            .article-title { font-size:28px; }
             .article-actions { flex-direction:column; align-items:stretch; }
+            .action-btn { justify-content:center; }
         }
     </style>
 </head>
@@ -143,12 +152,10 @@
 
 <script>
     (function() {
-        // Global state
         let currentUser = null;
         let currentArticle = null;
         let isAuthenticated = false;
 
-        // API endpoints
         const BASE = "https://mnews.jprq.site";
         const ARTICLE_URL = (slugOrId) => `${BASE}/api/v1/articles/${encodeURIComponent(slugOrId)}/`;
         const PROFILE_URL = `${BASE}/api/v1/users/my-profile/`;
@@ -159,7 +166,6 @@
         const BOOKMARK_TOGGLE_URL = `${BASE}/api/v1/bookmarks/toggle/`;
         const REACTION_STATS_URL = (targetType, targetId) => `${BASE}/api/v1/reactions/stats/${targetType}/${targetId}/`;
 
-        // DOM elements
         const headerActions = document.getElementById('headerActions');
         const articleContainer = document.getElementById('articleContainer');
         const commentsSection = document.getElementById('commentsSection');
@@ -233,7 +239,6 @@
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Authentication functions
         async function checkAuthStatus() {
             const token = localStorage.getItem("accessToken");
             if (!token) {
@@ -281,22 +286,22 @@
         function renderAuthenticatedHeader(user) {
             const displayName = user.display_name || user.username || user.email || "User";
             headerActions.innerHTML = `
-                    <div class="dropdown">
-                        <button class="auth-btn" onclick="toggleDropdown(this)">${displayName} ▾</button>
-                        <div class="dropdown-menu">
-                            <a href="profile.html">My Profile</a>
-                            <a href="dashboard.html">Dashboard</a>
-                            <button onclick="logout()">Logout</button>
-                        </div>
+                <div class="dropdown">
+                    <button class="auth-btn" onclick="toggleDropdown(this)">${displayName} ▾</button>
+                    <div class="dropdown-menu">
+                        <a href="profile.html">My Profile</a>
+                        <a href="dashboard.html">Dashboard</a>
+                        <button onclick="logout()">Logout</button>
                     </div>
-                `;
+                </div>
+            `;
         }
 
         function renderUnauthenticatedHeader() {
             headerActions.innerHTML = `
-                    <a href="login.html" class="auth-btn">Login</a>
-                    <a href="index.html" class="auth-btn secondary">Register</a>
-                `;
+                <a href="login.html" class="auth-btn">Login</a>
+                <a href="index.html" class="auth-btn secondary">Register</a>
+            `;
         }
 
         function toggleDropdown(button) {
@@ -311,7 +316,6 @@
             });
         }
 
-        // Article functions
         async function loadArticle() {
             const slugOrId = getArticleIdFromUrl();
             if (!slugOrId) {
@@ -337,43 +341,39 @@
 
             let contentHtml = '';
             if (article.blocks && article.blocks.length > 0) {
-                // Blocks are already ordered by position from backend
                 contentHtml = article.blocks
-                    .filter(block => block.visible !== false) // Show visible blocks
+                    .filter(block => block.visible !== false)
                     .map(block => renderBlock(block))
                     .join('');
-            } else if (article.summary) {
-                contentHtml = `<div class="article-block"><p>${escapeHtml(article.summary)}</p></div>`;
             } else {
                 contentHtml = '<div class="article-block"><p style="color:#6b7785;font-style:italic;">No content available.</p></div>';
             }
 
             articleContainer.innerHTML = `
-                    <div class="article-container">
-                        <div class="article-meta">
-                            <span>By ${escapeHtml(authorName)}</span>
-                            <span>•</span>
-                            <span>${formatDate(article.published_at || article.created_at)}</span>
-                            ${article.reading_time ? `<span>• ${article.reading_time} min read</span>` : ''}
-                        </div>
-                        <h1 class="article-title">${escapeHtml(article.title)}</h1>
-                        ${article.summary ? `<div class="article-summary">${escapeHtml(article.summary)}</div>` : ''}
-                        <div class="article-actions">
-                            <button class="action-btn" onclick="toggleReaction('article', '${article.id}', 'like')">
-                                👍 Like <span class="reaction-count" id="likeCount">0</span>
-                            </button>
-                            <button class="action-btn" onclick="toggleBookmark('article', '${article.id}')">
-                                🔖 Bookmark
-                            </button>
-                            <button class="action-btn" onclick="shareArticle()">
-                                📤 Share
-                            </button>
-                        </div>
-                        <div class="article-content">
-                            ${contentHtml}
-                        </div>
+                <div class="article-container">
+                    <div class="article-meta">
+                        <span>By ${escapeHtml(authorName)}</span>
+                        <span>•</span>
+                        <span>${formatDate(article.published_at || article.created_at)}</span>
+                        ${article.reading_time ? `<span>• ${article.reading_time} min read</span>` : ''}
                     </div>
-                `;
+                    <h1 class="article-title">${escapeHtml(article.title)}</h1>
+                    <div class="article-content">
+                        ${contentHtml}
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-btn" onclick="toggleReaction('article', '${article.id}', 'like')">
+                            👍 Like <span class="reaction-count" id="likeCount">0</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleBookmark('article', '${article.id}')">
+                            🔖 Bookmark
+                        </button>
+                        <button class="action-btn" onclick="shareArticle()">
+                            📤 Share
+                        </button>
+                    </div>
+                </div>
+            `;
 
             loadReactionStats('article', article.id);
         }
@@ -392,40 +392,51 @@
                     if (block.media?.file) {
                         const caption = block.content ?
                             `<figcaption>${escapeHtml(block.content)}</figcaption>` : '';
-                        return `<div class="article-block"><figure><img src="${escapeHtml(block.media.file)}" alt="${escapeHtml(block.content || '')}" />${caption}</figure></div>`;
+                        return `<div class="article-block"><figure><img src="${escapeHtml(block.media.file)}" alt="${escapeHtml(block.content || 'Article image')}" />${caption}</figure></div>`;
                     }
                     return '';
 
                 case 'video':
                     if (block.media?.file) {
                         const caption = block.content ?
-                            `<p style="text-align:center;color:#6b7785;font-size:14px;margin-top:8px;">${escapeHtml(block.content)}</p>` : '';
+                            `<p style="text-align:center;color:#6b7785;font-size:14px;margin-top:12px;font-style:italic;">${escapeHtml(block.content)}</p>` : '';
                         return `<div class="article-block"><video controls><source src="${escapeHtml(block.media.file)}">Your browser does not support video.</video>${caption}</div>`;
                     }
                     return '';
 
                 case 'quote':
+                case 'blockquote':
                     return `<div class="article-block"><blockquote>${escapeHtml(block.content)}</blockquote></div>`;
 
                 case 'pullquote':
-                    return `<div class="article-block"><div class="pullquote">${escapeHtml(block.content)}</div></div>`;
+                    return `<div class="article-block"><div class="pullquote">"${escapeHtml(block.content)}"</div></div>`;
 
                 case 'hr':
+                case 'divider':
                     return `<div class="article-block"><hr></div>`;
 
                 case 'html':
-                    // Render HTML directly - be cautious with user content
                     return `<div class="article-block">${block.content}</div>`;
 
                 case 'embed':
-                    return `<div class="article-block"><div style="margin:24px 0;">${block.content}</div></div>`;
+                    return `<div class="article-block"><div class="embed-container">${block.content}</div></div>`;
+
+                case 'list':
+                    const listTag = block.meta?.ordered ? 'ol' : 'ul';
+                    const items = block.content.split('\n').filter(i => i.trim()).map(item =>
+                        `<li>${escapeHtml(item.replace(/^[-*]\s*/, ''))}</li>`
+                    ).join('');
+                    return `<div class="article-block"><${listTag}>${items}</${listTag}></div>`;
+
+                case 'code':
+                    const language = block.meta?.language || '';
+                    return `<div class="article-block"><pre><code class="language-${language}">${escapeHtml(block.content)}</code></pre></div>`;
 
                 default:
                     return `<div class="article-block"><p>${escapeHtml(block.content)}</p></div>`;
             }
         }
 
-        // Reaction functions
         async function loadReactionStats(targetType, targetId) {
             try {
                 const stats = await fetchJson(REACTION_STATS_URL(targetType, targetId));
@@ -498,7 +509,6 @@
             });
         }
 
-        // Comment functions
         async function loadComments(articleId) {
             try {
                 const data = await fetchJson(COMMENTS_URL(articleId));
@@ -539,33 +549,33 @@
                 '';
 
             return `
-                    <div class="comment" id="comment-${comment.id}">
-                        <div class="comment-header">
-                            <span class="comment-author">${escapeHtml(authorName)}</span>
-                            <span class="comment-date">${formatDate(comment.created_at)}</span>
-                        </div>
-                        <div class="comment-body">${escapeHtml(comment.body)}</div>
-                        <div class="comment-reactions">
-                            <button class="reaction-btn" onclick="toggleCommentReaction('${comment.id}', 'like')">
-                                👍 <span id="comment-like-${comment.id}">0</span>
-                            </button>
-                            ${isAuthenticated ? `<button class="reaction-btn" onclick="replyToComment('${comment.id}')">Reply</button>` : ''}
-                        </div>
-                        <div id="reply-form-${comment.id}" style="display:none;">
-                            <div class="reply-form">
-                                <textarea class="comment-textarea" placeholder="Write a reply..." id="reply-text-${comment.id}"></textarea>
-                                <div class="comment-actions">
-                                    <div></div>
-                                    <div>
-                                        <button class="btn btn-secondary" onclick="cancelReply('${comment.id}')">Cancel</button>
-                                        <button class="btn btn-primary" onclick="submitReply('${comment.id}')">Reply</button>
-                                    </div>
+                <div class="comment" id="comment-${comment.id}">
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(authorName)}</span>
+                        <span class="comment-date">${formatDate(comment.created_at)}</span>
+                    </div>
+                    <div class="comment-body">${escapeHtml(comment.body)}</div>
+                    <div class="comment-reactions">
+                        <button class="reaction-btn" onclick="toggleCommentReaction('${comment.id}', 'like')">
+                            👍 <span id="comment-like-${comment.id}">0</span>
+                        </button>
+                        ${isAuthenticated ? `<button class="reaction-btn" onclick="replyToComment('${comment.id}')">Reply</button>` : ''}
+                    </div>
+                    <div id="reply-form-${comment.id}" style="display:none;">
+                        <div class="reply-form">
+                            <textarea class="comment-textarea" placeholder="Write a reply..." id="reply-text-${comment.id}"></textarea>
+                            <div class="comment-actions">
+                                <div></div>
+                                <div>
+                                    <button class="btn btn-secondary" onclick="cancelReply('${comment.id}')">Cancel</button>
+                                    <button class="btn btn-primary" onclick="submitReply('${comment.id}')">Reply</button>
                                 </div>
                             </div>
                         </div>
-                        ${repliesHtml}
                     </div>
-                `;
+                    ${repliesHtml}
+                </div>
+            `;
         }
 
         async function submitNewComment() {
@@ -671,13 +681,11 @@
             }
         }
 
-        // Event listeners
         submitComment.addEventListener('click', submitNewComment);
         cancelComment.addEventListener('click', () => {
             commentText.value = '';
         });
 
-        // Make functions globally available
         window.toggleReaction = toggleReaction;
         window.toggleBookmark = toggleBookmark;
         window.shareArticle = shareArticle;
@@ -688,7 +696,6 @@
         window.logout = logout;
         window.toggleDropdown = toggleDropdown;
 
-        // Initialize page
         async function initialize() {
             try {
                 await checkAuthStatus();
