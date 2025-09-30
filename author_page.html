@@ -142,7 +142,7 @@
 
 <script>
     (function () {
-        const BASE = "https://mnews.jprq.site";
+        const BASE = "";
 
         function getAuthorApiUrl(authorId) {
             return `${BASE}/api/v1/authors/${encodeURIComponent(authorId)}/`;
@@ -200,18 +200,18 @@
             }
         }
 
-        // Improved avatar handling for your MediaSerializer format
+
         function getAvatarSrc(avatarField) {
             if (!avatarField) return null;
 
-            // Handle string URLs directly
+
             if (typeof avatarField === "string") {
                 return avatarField.startsWith('http') ? avatarField : `${BASE}${avatarField}`;
             }
 
-            // Handle MediaSerializer object format
+
             if (typeof avatarField === "object") {
-                // Try different possible URL fields
+
                 const urlFields = ['preview_url', 'url', 'file', 'data'];
                 for (const field of urlFields) {
                     if (avatarField[field]) {
@@ -245,13 +245,13 @@
             const left = document.createElement("div");
             left.style.flex = "1";
 
-            // Article meta (date)
+
             const meta = document.createElement("div");
             meta.className = "article-meta";
             const publishedDate = article.published_at ? formatRelativeDate(article.published_at) : "";
             meta.textContent = publishedDate;
 
-            // Article title with link
+
             const title = document.createElement("div");
             title.className = "article-title";
             const link = document.createElement("a");
@@ -259,17 +259,17 @@
             link.textContent = article.title || "Untitled";
             title.appendChild(link);
 
-            // Article summary
+
             const summary = document.createElement("div");
             summary.className = "article-summary";
             let summaryText = article.summary || "";
 
-            // If no summary, try to extract from blocks
+
             if (!summaryText && article.blocks && article.blocks.length) {
                 summaryText = article.blocks[0].text || "";
             }
 
-            // Limit summary length
+
             if (summaryText.length > 150) {
                 summaryText = summaryText.slice(0, 147) + "...";
             }
@@ -322,7 +322,7 @@
             try {
                 const author = data;
 
-                // Extract name with better fallbacks
+
                 const displayName = (author.user && author.user.display_name) ||
                     (author.user && author.user.first_name && author.user.last_name &&
                         `${author.user.first_name} ${author.user.last_name}`) ||
@@ -330,7 +330,7 @@
 
                 document.getElementById("authorName").textContent = displayName;
 
-                // Role/username
+
                 const roleEl = document.getElementById("authorRole");
                 if (author.user && author.user.username && displayName !== author.user.username) {
                     roleEl.textContent = `@${author.user.username}`;
@@ -338,7 +338,7 @@
                     roleEl.textContent = "Author";
                 }
 
-                // Bio
+
                 const bioEl = document.getElementById("authorBio");
                 if (author.bio) {
                     bioEl.textContent = author.bio;
@@ -347,7 +347,7 @@
                     bioEl.style.display = "none";
                 }
 
-                // Avatar with improved error handling
+
                 const avatarContainer = document.getElementById("authorAvatar");
                 avatarContainer.innerHTML = "";
                 const avatarSrc = getAvatarSrc(author.avatar_url);
@@ -357,7 +357,7 @@
                     img.alt = displayName;
                     img.src = avatarSrc;
 
-                    // Better error handling for avatar loading
+
                     img.addEventListener("error", () => {
                         console.warn('Avatar failed to load:', avatarSrc);
                         avatarContainer.innerHTML = displayName.charAt(0).toUpperCase();
@@ -372,17 +372,17 @@
                     avatarContainer.textContent = displayName.charAt(0).toUpperCase();
                 }
 
-                // Article count
+
                 const articleCount = Array.isArray(author.articles) ? author.articles.length : 0;
                 document.getElementById("articleCount").textContent = articleCount;
 
-                // Links
+
                 const linksContainer = document.getElementById("authorLinks");
                 linksContainer.innerHTML = "";
 
                 if (author.website) {
                     const a = document.createElement("a");
-                    a.href = author.website.startsWith('http') ? author.website : `https://${author.website}`;
+                    a.href = author.website.startsWith('http') ? author.website : `${author.website}`;
                     a.target = "_blank";
                     a.rel = "noopener noreferrer";
                     a.className = "link-btn";
@@ -394,7 +394,7 @@
                     for (const [platform, url] of Object.entries(author.social_links)) {
                         if (!url) continue;
                         const a = document.createElement("a");
-                        a.href = url.startsWith('http') ? url : `https://${url}`;
+                        a.href = url.startsWith('http') ? url : `${url}`;
                         a.target = "_blank";
                         a.rel = "noopener noreferrer";
                         a.className = "link-btn";
@@ -403,12 +403,12 @@
                     }
                 }
 
-                // Dates
+
                 const dates = document.getElementById("authorDates");
                 const joined = author.created_at ? formatDate(author.created_at) : "";
                 dates.textContent = joined ? `Joined: ${joined}` : "";
 
-                // Articles with sorting
+
                 const articlesArea = document.getElementById("authorArticles");
                 const sortControls = document.getElementById("sortControls");
                 const sortSelect = document.getElementById("sortSelect");
@@ -435,12 +435,12 @@
                     });
                 }
 
-                // Initial render
+
                 renderArticles(sortArticles(currentArticles, 'newest'));
 
                 content.style.display = "block";
 
-                // Update page title
+
                 document.title = `${displayName} - Author Profile`;
 
             } catch (err) {
@@ -449,11 +449,11 @@
             }
         }
 
-        // On load
+
         const authorId = extractAuthorId();
         loadAuthor(authorId);
 
-        // Back button functionality
+
         const backBtn = document.getElementById("backBtn");
         backBtn.addEventListener("click", (e) => {
             if (window.history.length > 1) {

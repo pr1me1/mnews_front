@@ -41,6 +41,7 @@
         .save-status {
             color: #666;
             font-size: 14px;
+            margin-right: 15px;
         }
 
         .save-status.saving {
@@ -99,6 +100,80 @@
         textarea.form-control {
             min-height: 80px;
             resize: vertical;
+        }
+
+        .category-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .category-tag {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-selector {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .category-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .category-option {
+            padding: 6px 12px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .category-option:hover {
+            border-color: #3498db;
+        }
+
+        .category-option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
         }
 
         .blocks-container {
@@ -216,11 +291,34 @@
             color: #333;
         }
 
-        .block-preview img {
+        .block-preview img, .block-preview video {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
             margin: 15px 0;
+        }
+
+        .media-upload-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 2px dashed #e1e8ed;
+            border-radius: 8px;
+        }
+
+        .media-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .media-preview img, .media-preview video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+
+        .upload-input {
+            display: none;
         }
 
         .add-block {
@@ -375,6 +473,16 @@
         </div>
     </div>
 
+    <div class="category-section">
+        <h3>Categories</h3>
+        <div class="category-tags" id="selectedCategories"></div>
+        <button class="btn btn-primary" onclick="toggleCategorySelector()">Manage Categories</button>
+        <div class="category-selector" id="categorySelector" style="display: none;">
+            <div class="category-options" id="categoryOptions"></div>
+            <button class="btn btn-success" onclick="saveCategories()" style="margin-top: 10px;">Save Categories</button>
+        </div>
+    </div>
+
     <div class="blocks-container" id="blocksContainer">
         <div class="loading">Loading blocks...</div>
     </div>
@@ -419,20 +527,26 @@
     let articleId = null;
     let article = null;
     let blocks = [];
+    let categories = [];
+    let selectedCategoryIds = [];
     let currentEditingBlock = null;
     let saveTimeout = null;
+    let pendingMediaUploads = {};
 
     const API_BASE_URL = 'https://mnews.jprq.site';
     const ARTICLE_URL = (id) => `${API_BASE_URL}/api/v1/my-profile/articles/${id}/`;
     const BLOCKS_URL = (id) => `${API_BASE_URL}/api/v1/my-profile/articles/${id}/block/`;
     const BLOCK_URL = (articleId, blockId) => `${API_BASE_URL}/api/v1/my-profile/articles/${articleId}/block/${blockId}/`;
-
+    const MEDIA_UPLOAD_URL = `${API_BASE_URL}/api/v1/media/upload/`;
+    const MEDIA_DELETE_URL = (id) => `${API_BASE_URL}/api/v1/users/my-profile/media/${id}/delete`;
+    const CATEGORIES_URL = `${API_BASE_URL}/api/v1/taxonomy/categories/?flat=true`;
+    const SET_CATEGORIES_URL = (id) => `${API_BASE_URL}/api/v1/my-profile/articles/${id}/set-categories/`;
+    const REMOVE_CATEGORIES_URL = (id) => `${API_BASE_URL}/api/v1/my-profile/articles/${id}/remove-categories/`;
 
     function getArticleIdFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('id');
     }
-
 
     function getAuthHeaders() {
         const token = localStorage.getItem('accessToken');
@@ -441,20 +555,26 @@
             return null;
         }
         return {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`
         };
     }
-
 
     async function apiRequest(url, options = {}) {
         const headers = getAuthHeaders();
         if (!headers) return null;
 
+        const finalHeaders = { ...headers };
+        if (options.headers) {
+            Object.assign(finalHeaders, options.headers);
+        }
+        if (!options.body || !(options.body instanceof FormData)) {
+            finalHeaders['Content-Type'] = 'application/json';
+        }
+
         try {
             const response = await fetch(url, {
                 ...options,
-                headers: { ...headers, ...options.headers }
+                headers: finalHeaders
             });
 
             if (response.status === 401) {
@@ -473,19 +593,40 @@
         }
     }
 
-
     async function loadArticle() {
         try {
             article = await apiRequest(ARTICLE_URL(articleId));
             if (article) {
                 document.getElementById('articleTitle').value = article.title || '';
                 document.getElementById('articleSummary').value = article.summary || '';
+                selectedCategoryIds = article.categories?.map(c => c.id) || [];
+                renderSelectedCategories();
             }
         } catch (error) {
             showMessage('Error loading article: ' + error.message, 'error');
         }
     }
 
+    async function loadCategories() {
+        try {
+            const response = await apiRequest(CATEGORIES_URL);
+            // Handle paginated response - get all categories if there are multiple pages
+            categories = response?.results || [];
+
+            // Optional: Load all pages if needed
+            let nextUrl = response?.next;
+            while (nextUrl) {
+                const nextResponse = await apiRequest(nextUrl);
+                categories = [...categories, ...(nextResponse?.results || [])];
+                nextUrl = nextResponse?.next;
+            }
+
+            renderCategoryOptions();
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showMessage('Error loading categories', 'error');
+        }
+    }
 
     async function loadBlocks() {
         try {
@@ -498,6 +639,68 @@
         }
     }
 
+    function renderSelectedCategories() {
+        const container = document.getElementById('selectedCategories');
+        if (selectedCategoryIds.length === 0) {
+            container.innerHTML = '<p style="color: #666; font-size: 14px;">No categories selected</p>';
+            return;
+        }
+        const selectedCats = categories.filter(c => selectedCategoryIds.includes(c.id));
+        container.innerHTML = selectedCats.map(cat => `
+            <div class="category-tag">
+                ${escapeHtml(cat.name)}
+                <button onclick="removeCategoryTag('${cat.id}')" title="Remove">×</button>
+            </div>
+        `).join('');
+    }
+
+    function renderCategoryOptions() {
+        const container = document.getElementById('categoryOptions');
+        container.innerHTML = categories.map(cat => `
+            <div class="category-option ${selectedCategoryIds.includes(cat.id) ? 'selected' : ''}"
+                 onclick="toggleCategory('${cat.id}')" data-cat-id="${cat.id}">
+                ${escapeHtml(cat.name)}
+            </div>
+        `).join('');
+    }
+
+    function toggleCategory(categoryId) {
+        const index = selectedCategoryIds.indexOf(categoryId);
+        if (index > -1) {
+            selectedCategoryIds.splice(index, 1);
+        } else {
+            selectedCategoryIds.push(categoryId);
+        }
+        renderCategoryOptions();
+    }
+
+    function removeCategoryTag(categoryId) {
+        selectedCategoryIds = selectedCategoryIds.filter(id => id !== categoryId);
+        renderSelectedCategories();
+        renderCategoryOptions();
+    }
+
+    function toggleCategorySelector() {
+        const selector = document.getElementById('categorySelector');
+        selector.style.display = selector.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function saveCategories() {
+        try {
+            setSaveStatus('saving');
+            await apiRequest(SET_CATEGORIES_URL(articleId), {
+                method: 'POST',
+                body: JSON.stringify({ categories: selectedCategoryIds })
+            });
+            renderSelectedCategories();
+            toggleCategorySelector();
+            setSaveStatus('saved');
+            showMessage('Categories saved successfully!', 'success');
+        } catch (error) {
+            setSaveStatus('error');
+            showMessage('Error saving categories: ' + error.message, 'error');
+        }
+    }
 
     function renderBlocks() {
         const container = document.getElementById('blocksContainer');
@@ -508,28 +711,27 @@
         }
 
         container.innerHTML = blocks.map(block => `
-                <div class="block-item" data-id="${block.id}">
-                    <div class="block-header">
-                        <div class="block-type">${block.type}</div>
-                        <div class="block-actions">
-                            <button class="btn btn-primary" onclick="editBlock('${block.id}')">Edit</button>
-                            <button class="btn btn-danger" onclick="deleteBlock('${block.id}')">Delete</button>
-                        </div>
+            <div class="block-item" data-id="${block.id}">
+                <div class="block-header">
+                    <div class="block-type">${block.type}</div>
+                    <div class="block-actions">
+                        <button class="btn btn-primary" onclick="editBlock('${block.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteBlock('${block.id}')">Delete</button>
                     </div>
-                    <div class="block-content">
-                        <div class="block-preview">${renderBlockPreview(block)}</div>
-                        <div class="block-editor" id="editor-${block.id}">
-                            ${renderBlockEditor(block)}
-                            <div style="margin-top: 15px;">
-                                <button class="btn btn-success" onclick="saveBlock('${block.id}')">Save</button>
-                                <button class="btn btn-secondary" onclick="cancelEdit('${block.id}')">Cancel</button>
-                            </div>
+                </div>
+                <div class="block-content">
+                    <div class="block-preview">${renderBlockPreview(block)}</div>
+                    <div class="block-editor" id="editor-${block.id}">
+                        ${renderBlockEditor(block)}
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-success" id="save-${block.id}" onclick="saveBlock('${block.id}')" disabled>Save</button>
+                            <button class="btn btn-secondary" onclick="cancelEdit('${block.id}')">Cancel</button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            </div>
+        `).join('');
     }
-
 
     function renderBlockPreview(block) {
         switch (block.type) {
@@ -541,13 +743,16 @@
             case 'quote':
                 return `<blockquote style="border-left: 4px solid #3498db; padding-left: 15px; font-style: italic;">${escapeHtml(block.content || 'Empty quote')}</blockquote>`;
             case 'image':
-                if (block.media?.file) {
-                    return `<img src="${block.media.file}" alt="${escapeHtml(block.content || '')}" style="max-width: 100%; height: auto;">`;
+                if (block.media?.media_url) {
+                    return `<div style="text-align: center;">
+                    <img src="${block.media.media_url}" alt="${escapeHtml(block.content || '')}" style="max-width: 100%; height: auto; display: inline-block;">
+                    ${block.content ? `<p style="color: #666; font-size: 14px; margin-top: 10px;">${escapeHtml(block.content)}</p>` : ''}
+                </div>`;
                 }
-                return `<p style="color: #666;">[Image block - ${escapeHtml(block.content || 'No image uploaded')}]</p>`;
-            case 'video':
-                if (block.media?.file) {
-                    return `<video controls style="max-width: 100%;"><source src="${block.media.file}"></video>`;
+                return `<p style="color: #666;">[Image block - No image uploaded]</p>`;            case 'video':
+                if (block.media?.media_url) {
+                    return `<video controls style="max-width: 100%;"><source src="${block.media.media_url}"></video>
+                            ${block.content ? `<p style="text-align: center; color: #666; font-size: 14px; margin-top: 10px;">${escapeHtml(block.content)}</p>` : ''}`;
                 }
                 return `<p style="color: #666;">[Video block - ${escapeHtml(block.content || 'No video uploaded')}]</p>`;
             case 'html':
@@ -557,66 +762,141 @@
         }
     }
 
-
     function renderBlockEditor(block) {
+        const hasMedia = block.type === 'image' || block.type === 'video';
+        const mediaSection = hasMedia ? `
+            <div class="media-upload-section">
+                <label class="label">Upload ${block.type === 'image' ? 'Image' : 'Video'}</label>
+                <input type="file" id="upload-${block.id}" class="upload-input"
+                       accept="${block.type === 'image' ? 'image/*' : 'video/*'}"
+                       onchange="handleMediaUpload('${block.id}', event)">
+                <button class="btn btn-primary" onclick="document.getElementById('upload-${block.id}').click()">
+                    Choose File
+                </button>
+                <div class="media-preview" id="preview-${block.id}">
+                    ${block.media?.media_url ? (block.type === 'image'
+                ? `<img src="${block.media.media_url}" alt="Current media">`
+                : `<video controls><source src="${block.media.media_url}"></video>`)
+            : ''}
+                </div>
+            </div>
+        ` : '';
+
         switch (block.type) {
             case 'heading':
                 return `
-                        <div class="form-group">
-                            <label class="label">Heading Level</label>
-                            <select class="form-control" id="level-${block.id}">
-                                <option value="1" ${block.meta?.level === 1 ? 'selected' : ''}>H1</option>
-                                <option value="2" ${block.meta?.level === 2 || !block.meta?.level ? 'selected' : ''}>H2</option>
-                                <option value="3" ${block.meta?.level === 3 ? 'selected' : ''}>H3</option>
-                                <option value="4" ${block.meta?.level === 4 ? 'selected' : ''}>H4</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Heading Text</label>
-                            <input type="text" class="form-control" id="content-${block.id}" value="${escapeHtml(block.content || '')}" placeholder="Enter heading text...">
-                        </div>
-                    `;
+                    <div class="form-group">
+                        <label class="label">Heading Level</label>
+                        <select class="form-control" id="level-${block.id}" onchange="enableSaveButton('${block.id}')">
+                            <option value="1" ${block.meta?.level === 1 ? 'selected' : ''}>H1</option>
+                            <option value="2" ${block.meta?.level === 2 || !block.meta?.level ? 'selected' : ''}>H2</option>
+                            <option value="3" ${block.meta?.level === 3 ? 'selected' : ''}>H3</option>
+                            <option value="4" ${block.meta?.level === 4 ? 'selected' : ''}>H4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Heading Text</label>
+                        <input type="text" class="form-control" id="content-${block.id}"
+                               value="${escapeHtml(block.content || '')}"
+                               placeholder="Enter heading text..."
+                               oninput="enableSaveButton('${block.id}')">
+                    </div>
+                `;
             case 'paragraph':
             case 'quote':
                 return `
-                        <div class="form-group">
-                            <label class="label">${block.type === 'quote' ? 'Quote' : 'Paragraph'} Content</label>
-                            <textarea class="form-control" id="content-${block.id}" rows="4" placeholder="Enter content...">${escapeHtml(block.content || '')}</textarea>
-                        </div>
-                    `;
+                    <div class="form-group">
+                        <label class="label">${block.type === 'quote' ? 'Quote' : 'Paragraph'} Content</label>
+                        <textarea class="form-control" id="content-${block.id}" rows="4"
+                                  placeholder="Enter content..."
+                                  oninput="enableSaveButton('${block.id}')">${escapeHtml(block.content || '')}</textarea>
+                    </div>
+                `;
             case 'html':
                 return `
-                        <div class="form-group">
-                            <label class="label">HTML Content</label>
-                            <textarea class="form-control" id="content-${block.id}" rows="6" placeholder="Enter HTML code..." style="font-family: monospace;">${escapeHtml(block.content || '')}</textarea>
-                        </div>
-                    `;
+                    <div class="form-group">
+                        <label class="label">HTML Content</label>
+                        <textarea class="form-control" id="content-${block.id}" rows="6"
+                                  placeholder="Enter HTML code..."
+                                  style="font-family: monospace;"
+                                  oninput="enableSaveButton('${block.id}')">${escapeHtml(block.content || '')}</textarea>
+                    </div>
+                `;
             case 'image':
             case 'video':
                 return `
-                        <div class="form-group">
-                            <label class="label">Caption</label>
-                            <input type="text" class="form-control" id="content-${block.id}" value="${escapeHtml(block.content || '')}" placeholder="Enter caption...">
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Media ID (Optional)</label>
-                            <input type="text" class="form-control" id="media-${block.id}" value="${block.media?.id || ''}" placeholder="Enter media ID...">
-                            <small style="color: #666; font-size: 12px;">Upload media separately and enter the ID here</small>
-                        </div>
-                    `;
+                    <div class="form-group">
+                        <label class="label">Caption</label>
+                        <input type="text" class="form-control" id="content-${block.id}"
+                               value="${escapeHtml(block.content || '')}"
+                               placeholder="Enter caption..."
+                               oninput="enableSaveButton('${block.id}')">
+                    </div>
+                    ${mediaSection}
+                `;
             default:
                 return `
-                        <div class="form-group">
-                            <label class="label">Content</label>
-                            <textarea class="form-control" id="content-${block.id}" rows="3" placeholder="Enter content...">${escapeHtml(block.content || '')}</textarea>
-                        </div>
-                    `;
+                    <div class="form-group">
+                        <label class="label">Content</label>
+                        <textarea class="form-control" id="content-${block.id}" rows="3"
+                                  placeholder="Enter content..."
+                                  oninput="enableSaveButton('${block.id}')">${escapeHtml(block.content || '')}</textarea>
+                    </div>
+                `;
         }
     }
 
+    function enableSaveButton(blockId) {
+        const saveBtn = document.getElementById(`save-${blockId}`);
+        if (saveBtn) saveBtn.disabled = false;
+    }
+
+    async function handleMediaUpload(blockId, event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const block = blocks.find(b => b.id === blockId);
+        if (!block) return;
+
+        try {
+            setSaveStatus('saving');
+            showMessage('Uploading media...', 'success');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const authHeaders = getAuthHeaders();
+            const response = await fetch(MEDIA_UPLOAD_URL, {
+                method: 'POST',
+                headers: authHeaders,
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const mediaData = await response.json();
+            pendingMediaUploads[blockId] = mediaData;
+
+            const previewEl = document.getElementById(`preview-${blockId}`);
+            if (previewEl) {
+                if (block.type === 'image') {
+                    previewEl.innerHTML = `<img src="${mediaData.media_url}" alt="Uploaded media">`;
+                } else {
+                    previewEl.innerHTML = `<video controls><source src="${mediaData.media_url}"></video>`;
+                }
+            }
+
+            enableSaveButton(blockId);
+            setSaveStatus('saved');
+            showMessage('Media uploaded! Click Save to apply changes.', 'success');
+
+        } catch (error) {
+            setSaveStatus('error');
+            showMessage('Error uploading media: ' + error.message, 'error');
+        }
+    }
 
     function editBlock(blockId) {
-
         if (currentEditingBlock) {
             cancelEdit(currentEditingBlock);
         }
@@ -631,7 +911,6 @@
         preview.style.display = 'none';
     }
 
-
     function cancelEdit(blockId) {
         const blockElement = document.querySelector(`[data-id="${blockId}"]`);
         const editor = blockElement.querySelector('.block-editor');
@@ -641,8 +920,9 @@
         editor.classList.remove('active');
         preview.style.display = 'block';
         currentEditingBlock = null;
-    }
 
+        delete pendingMediaUploads[blockId];
+    }
 
     async function saveBlock(blockId) {
         const block = blocks.find(b => b.id === blockId);
@@ -657,17 +937,18 @@
                 visible: true
             };
 
-
             if (block.type === 'heading') {
                 const level = parseInt(document.getElementById(`level-${blockId}`)?.value || '2');
                 updateData.meta = { level };
             }
 
-            if (block.type === 'image' || block.type === 'video') {
-                const mediaId = document.getElementById(`media-${blockId}`)?.value;
-                if (mediaId) {
-                    updateData.media_id = mediaId;
+            if (pendingMediaUploads[blockId]) {
+                if (block.media?.id) {
+                    await apiRequest(MEDIA_DELETE_URL(block.media.id), {
+                        method: 'DELETE'
+                    });
                 }
+                updateData.media_id = pendingMediaUploads[blockId].id;
             }
 
             const updatedBlock = await apiRequest(BLOCK_URL(articleId, blockId), {
@@ -675,12 +956,12 @@
                 body: JSON.stringify(updateData)
             });
 
-
             const blockIndex = blocks.findIndex(b => b.id === blockId);
             if (blockIndex !== -1) {
                 blocks[blockIndex] = updatedBlock;
             }
 
+            delete pendingMediaUploads[blockId];
             cancelEdit(blockId);
             renderBlocks();
             setSaveStatus('saved');
@@ -692,17 +973,22 @@
         }
     }
 
-
     async function deleteBlock(blockId) {
         if (!confirm('Are you sure you want to delete this block?')) return;
 
+        const block = blocks.find(b => b.id === blockId);
         setSaveStatus('saving');
 
         try {
+            if (block?.media?.id) {
+                await apiRequest(MEDIA_DELETE_URL(block.media.id), {
+                    method: 'DELETE'
+                });
+            }
+
             await apiRequest(BLOCK_URL(articleId, blockId), {
                 method: 'DELETE'
             });
-
 
             blocks = blocks.filter(b => b.id !== blockId);
             renderBlocks();
@@ -714,7 +1000,6 @@
             showMessage('Error deleting block: ' + error.message, 'error');
         }
     }
-
 
     async function addNewBlock(type) {
         setSaveStatus('saving');
@@ -734,7 +1019,6 @@
             hideBlockTypeSelector();
             setSaveStatus('saved');
 
-
             setTimeout(() => editBlock(newBlock.id), 100);
             showMessage('New block created!', 'success');
 
@@ -743,7 +1027,6 @@
             showMessage('Error creating block: ' + error.message, 'error');
         }
     }
-
 
     async function saveArticleMetadata() {
         if (!article) return;
@@ -774,7 +1057,6 @@
         }, 1000);
     }
 
-
     function showBlockTypeSelector() {
         document.getElementById('blockTypeSelector').classList.add('active');
     }
@@ -782,7 +1064,6 @@
     function hideBlockTypeSelector() {
         document.getElementById('blockTypeSelector').classList.remove('active');
     }
-
 
     function setSaveStatus(status) {
         const statusElement = document.getElementById('saveStatus');
@@ -803,7 +1084,6 @@
         }
     }
 
-
     function showMessage(text, type) {
         const messageEl = document.createElement('div');
         messageEl.className = `message ${type}`;
@@ -817,14 +1097,12 @@
         setTimeout(() => messageEl.remove(), 5000);
     }
 
-
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-
 
     document.getElementById('addBlockBtn').addEventListener('click', showBlockTypeSelector);
 
@@ -838,7 +1116,6 @@
     document.getElementById('articleTitle').addEventListener('input', saveArticleMetadata);
     document.getElementById('articleSummary').addEventListener('input', saveArticleMetadata);
 
-
     document.addEventListener('DOMContentLoaded', () => {
         articleId = getArticleIdFromUrl();
         if (!articleId) {
@@ -849,6 +1126,7 @@
 
         loadArticle();
         loadBlocks();
+        loadCategories();
     });
 </script>
 </body>

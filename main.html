@@ -224,22 +224,23 @@
 
         function renderAuthenticatedHeader(user) {
             const displayName = user.display_name || user.username || user.email || "User";
+            const isWriter = user.role === 'writer' || user.is_author === true;
+
             headerActions.innerHTML = `
-                <div class="profile-dropdown">
-                    <a href="#" class="auth-btn">${displayName} ▾</a>
-                    <div class="profile-menu">
-                        <a href="my_profile.html">My Profile</a>
-                        <a href="#" id="logoutBtn">Logout</a>
-                    </div>
-                </div>
-            `;
+        ${isWriter ? '<a href="dashboard.html" class="auth-btn secondary" style="margin-right: 10px;">📊 Dashboard</a>' : ''}
+        <div class="profile-dropdown">
+            <a href="#" class="auth-btn">${displayName} ▾</a>
+            <div class="profile-menu">
+                <a href="my_profile.html">My Profile</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    `;
             document.getElementById("logoutBtn").addEventListener("click", (e) => {
                 e.preventDefault();
                 logout();
             });
-        }
-
-        function renderUnauthenticatedHeader() {
+        }        function renderUnauthenticatedHeader() {
             headerActions.innerHTML = `
                 <a href="login.html" class="auth-btn">Login</a>
                 <a href="register.html" class="auth-btn secondary">Register</a>

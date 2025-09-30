@@ -138,7 +138,7 @@
 
                 <div id="authPrompt" style="display:none;">
                     <div class="auth-prompt">
-                        <p>Please <a href="login.html">login</a> or <a href="index.html">register</a> to join the discussion.</p>
+                        <p>Please <a href="login.html">login</a> or <a href="register.html">register</a> to join the discussion.</p>
                     </div>
                 </div>
 
@@ -289,7 +289,7 @@
                 <div class="dropdown">
                     <button class="auth-btn" onclick="toggleDropdown(this)">${displayName} ▾</button>
                     <div class="dropdown-menu">
-                        <a href="profile.html">My Profile</a>
+                        <a href="my_profile.html">My Profile</a>
                         <a href="dashboard.html">Dashboard</a>
                         <button onclick="logout()">Logout</button>
                     </div>
@@ -300,7 +300,7 @@
         function renderUnauthenticatedHeader() {
             headerActions.innerHTML = `
                 <a href="login.html" class="auth-btn">Login</a>
-                <a href="index.html" class="auth-btn secondary">Register</a>
+                <a href="register.html" class="auth-btn secondary">Register</a>
             `;
         }
 
@@ -389,18 +389,20 @@
                     return `<div class="article-block"><h${level}>${escapeHtml(block.content)}</h${level}></div>`;
 
                 case 'image':
-                    if (block.media?.file) {
+                    if (block.media?.media_url) {
                         const caption = block.content ?
                             `<figcaption>${escapeHtml(block.content)}</figcaption>` : '';
-                        return `<div class="article-block"><figure><img src="${escapeHtml(block.media.file)}" alt="${escapeHtml(block.content || 'Article image')}" />${caption}</figure></div>`;
+                        return `<div class="article-block"><figure style="text-align:center;"><img src="${block.media.media_url}" alt="${escapeHtml(block.content || 'Article image')}" style="display:inline-block;" />${caption}</figure></div>`;
                     }
                     return '';
 
                 case 'video':
-                    if (block.media?.file) {
+                    if (block.media?.media_url) {
+                        const videoType = block.media.media_url.endsWith('.webm') ? 'video/webm' :
+                            block.media.media_url.endsWith('.ogg') ? 'video/ogg' : 'video/mp4';
                         const caption = block.content ?
                             `<p style="text-align:center;color:#6b7785;font-size:14px;margin-top:12px;font-style:italic;">${escapeHtml(block.content)}</p>` : '';
-                        return `<div class="article-block"><video controls><source src="${escapeHtml(block.media.file)}">Your browser does not support video.</video>${caption}</div>`;
+                        return `<div class="article-block" style="text-align:center;"><video controls style="display:inline-block;"><source src="${block.media.media_url}" type="${videoType}">Your browser does not support video.</video>${caption}</div>`;
                     }
                     return '';
 
@@ -544,38 +546,71 @@
                 (comment.user.display_name || comment.user.username || 'Anonymous') :
                 'Anonymous';
 
-            const repliesHtml = comment.children && comment.children.length > 0 ?
-                `<div class="replies-container">${comment.children.map(reply => renderComment(reply)).join('')}</div>` :
-                '';
+            const repliesCount = comment.replies_count || 0;
+            const hasReplies = repliesCount > 0;
+
+            const repliesSection = hasReplies ? `
+        <button class="reaction-btn" id="load-replies-${comment.id}" onclick="loadReplies('${comment.id}')">
+            View ${repliesCount} ${repliesCount === 1 ? 'reply' : 'replies'}
+        </button>
+        <div class="replies-container" id="replies-${comment.id}"></div>
+    ` : '<div class="replies-container" id="replies-${comment.id}"></div>';
 
             return `
-                <div class="comment" id="comment-${comment.id}">
-                    <div class="comment-header">
-                        <span class="comment-author">${escapeHtml(authorName)}</span>
-                        <span class="comment-date">${formatDate(comment.created_at)}</span>
-                    </div>
-                    <div class="comment-body">${escapeHtml(comment.body)}</div>
-                    <div class="comment-reactions">
-                        <button class="reaction-btn" onclick="toggleCommentReaction('${comment.id}', 'like')">
-                            👍 <span id="comment-like-${comment.id}">0</span>
-                        </button>
-                        ${isAuthenticated ? `<button class="reaction-btn" onclick="replyToComment('${comment.id}')">Reply</button>` : ''}
-                    </div>
-                    <div id="reply-form-${comment.id}" style="display:none;">
-                        <div class="reply-form">
-                            <textarea class="comment-textarea" placeholder="Write a reply..." id="reply-text-${comment.id}"></textarea>
-                            <div class="comment-actions">
-                                <div></div>
-                                <div>
-                                    <button class="btn btn-secondary" onclick="cancelReply('${comment.id}')">Cancel</button>
-                                    <button class="btn btn-primary" onclick="submitReply('${comment.id}')">Reply</button>
-                                </div>
-                            </div>
+        <div class="comment" id="comment-${comment.id}">
+            <div class="comment-header">
+                <span class="comment-author">${escapeHtml(authorName)}</span>
+                <span class="comment-date">${formatDate(comment.created_at)}</span>
+            </div>
+            <div class="comment-body">${escapeHtml(comment.body)}</div>
+            <div class="comment-reactions">
+                <button class="reaction-btn" onclick="toggleCommentReaction('${comment.id}', 'like')">
+                    👍 <span id="comment-like-${comment.id}">0</span>
+                </button>
+                ${isAuthenticated ? `<button class="reaction-btn" onclick="replyToComment('${comment.id}')">Reply</button>` : ''}
+            </div>
+            <div id="reply-form-${comment.id}" style="display:none;">
+                <div class="reply-form">
+                    <textarea class="comment-textarea" placeholder="Write a reply..." id="reply-text-${comment.id}"></textarea>
+                    <div class="comment-actions">
+                        <div></div>
+                        <div>
+                            <button class="btn btn-secondary" onclick="cancelReply('${comment.id}')">Cancel</button>
+                            <button class="btn btn-primary" onclick="submitReply('${comment.id}')">Reply</button>
                         </div>
                     </div>
-                    ${repliesHtml}
                 </div>
-            `;
+            </div>
+            ${repliesSection}
+        </div>
+    `;
+        }
+
+        async function loadReplies(commentId) {
+            const repliesContainer = document.getElementById(`replies-${commentId}`);
+            const loadBtn = document.getElementById(`load-replies-${commentId}`);
+
+            if (!repliesContainer || !loadBtn) return;
+
+            try {
+                loadBtn.textContent = 'Loading...';
+                loadBtn.disabled = true;
+
+                const replies = await fetchJson(`${BASE}/api/v1/comments/${commentId}/replies/`);
+                const repliesData = replies.results || replies;
+
+                if (repliesData && repliesData.length > 0) {
+                    repliesContainer.innerHTML = repliesData.map(reply => renderComment(reply)).join('');
+                    loadBtn.style.display = 'none';
+                } else {
+                    repliesContainer.innerHTML = '<div class="loading">No replies yet.</div>';
+                    loadBtn.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Failed to load replies:', err);
+                loadBtn.textContent = 'Failed to load replies';
+                loadBtn.disabled = false;
+            }
         }
 
         async function submitNewComment() {
@@ -695,6 +730,7 @@
         window.submitReply = submitReply;
         window.logout = logout;
         window.toggleDropdown = toggleDropdown;
+        window.loadReplies = loadReplies;
 
         async function initialize() {
             try {
