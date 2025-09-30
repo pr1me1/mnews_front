@@ -468,6 +468,14 @@
 
             if (response.ok) {
                 const article = await response.json();
+                console.log('Created article:', article); // Debug line
+                console.log('Article ID:', article.id);   // Debug line
+
+                if (!article.id) {
+                    showMessage('Article created but no ID returned', 'error');
+                    return;
+                }
+
                 showMessage('Article created successfully! Redirecting...', 'success');
 
                 setTimeout(() => {
